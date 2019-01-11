@@ -6,6 +6,28 @@ Parameters:
   SlackUrl:
     AllowedPattern : ".+"
     Type: String
+  SlackUrlDev:
+    AllowedPattern : ".+"
+    Type: String
+  DeployProd:
+    AllowedPattern : ".+"
+    Type: String
+  DeployQa:
+    AllowedPattern : ".+"
+    Type: String
+  DeployStage:
+    AllowedPattern : ".+"
+    Type: String
+  PipelineProd:
+    AllowedPattern : ".+"
+    Type: String
+  PipelineQa:
+    AllowedPattern : ".+"
+    Type: String
+  PipelineStage:
+    AllowedPattern : ".+"
+    Type: String
+    
 
 Resources:
   CPLambda:
@@ -20,12 +42,91 @@ Resources:
         Variables:
           SLACK_URL:
             Ref: SlackUrl
+          SLACK_URL_DEV:
+            Ref: SlackUrlDev
+          DEPLOY_PROD:
+            Ref: DeployProd
+          DEPLOY_QA:
+            Ref: DeployQa
+          DEPLOY_STAGE:
+            Ref: DeployStage
+          PIPELINE_PROD:
+            Ref: PipelineProd
+          PIPELINE_QA:
+            Ref: PipelineQa
+          PIPELINE_STAGE:
+            Ref: PipelineStage
       Events:
-        CodePipelineEvent:
+        CodePipelineEventRltest2:
           Type: CloudWatchEvent
           Properties:
             Pattern:
-              source:
-              - aws.codepipeline
+              detail:
+                pipeline:
+                - rltest-alerts-2
               detail-type:
               - CodePipeline Pipeline Execution State Change
+              source:
+              - aws.codepipeline
+        CodePipelineEventDev:
+          Properties:
+            Pattern:
+              detail:
+                pipeline:
+                - mps-dev-us-west-2
+              detail-type:
+              - CodePipeline Pipeline Execution State Change
+              source:
+              - aws.codepipeline
+          Type: CloudWatchEvent
+        CodePipelineEventQa:
+          Properties:
+            Pattern:
+              detail:
+                pipeline:
+                - mps-qa-us-west-2
+              detail-type:
+              - CodePipeline Pipeline Execution State Change
+              source:
+              - aws.codepipeline
+          Type: CloudWatchEvent
+        CodePipelineEventRltest:
+          Properties:
+            Pattern:
+              detail:
+                pipeline:
+                - rltest-alerts
+                stage:
+                - deploy-rltest
+              detail-type:
+              - CodePipeline Stage Execution State Change
+              source:
+              - aws.codepipeline
+          Type: CloudWatchEvent
+        CodePipelineEventStage:
+          Properties:
+            Pattern:
+              detail:
+                pipeline:
+                - mps-stage-prod-eu-west-2
+                stage:
+                - Deploy-stage
+              detail-type:
+              - CodePipeline Stage Execution State Change
+              source:
+              - aws.codepipeline
+          Type: CloudWatchEvent
+        CodePipelineEventProd:
+          Properties:
+            Pattern:
+              detail:
+                pipeline:
+                - mps-stage-prod-eu-west-2
+                stage:
+                - Deploy-prod
+              detail-type:
+              - CodePipeline Stage Execution State Change
+              source:
+              - aws.codepipeline
+          Type: CloudWatchEvent
+
